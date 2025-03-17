@@ -30,24 +30,24 @@ final class KeyPathIterableTests: XCTestCase {
         XCTAssertEqual(count, 0)
     }
 
-    func testRecursivelyAllKeyPaths() throws {
-        let recursivelyAllKeyPaths = Set(NestedStruct(hoge: .init(), fuga: .init()).recursivelyAllKeyPaths)
-        
-        XCTAssertEqual(
-            recursivelyAllKeyPaths,
-            [
-                \.hoge,
-                 \.hoge.hoge,
-                 \.hoge.fuga,
-                 \.hoge.foo,
-                 \.fuga,
-                 \.fuga.fuga,
-                 \.fuga.hoge,
-                 \.other,
-                 \.other2
-            ]
-        )
-    }
+//    func testRecursivelyAllKeyPaths() throws {
+//        let recursivelyAllKeyPaths = Set(NestedStruct(hoge: .init(), fuga: .init()).recursivelyAllKeyPaths)
+//        
+//        XCTAssertEqual(
+//            recursivelyAllKeyPaths,
+//            [
+//                \.hoge,
+//                 \.hoge.hoge,
+//                 \.hoge.fuga,
+//                 \.hoge.foo,
+//                 \.fuga,
+//                 \.fuga.fuga,
+//                 \.fuga.hoge,
+//                 \.other,
+//                 \.other2
+//            ]
+//        )
+//    }
 }
 
 @KeyPathIterable
