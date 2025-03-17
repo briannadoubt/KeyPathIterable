@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,9 +7,9 @@ import CompilerPluginSupport
 let package = Package(
     name: "KeyPathIterable",
     platforms: [
-        .iOS(.v11),
+        .iOS(.v12),
         .macOS(.v10_15),
-        .tvOS(.v11),
+        .tvOS(.v12),
         .watchOS(.v4)
     ],
     products: [
@@ -45,5 +45,6 @@ let package = Package(
             name: "KeyPathIterableTests",
             dependencies: ["KeyPathIterable"]
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v6]
 )
