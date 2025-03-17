@@ -9,12 +9,11 @@ fileprivate extension VariableDeclSyntax {
 }
 
 public struct KeyPathIterableMacro: MemberMacro {
-    public static func expansion<
-        Declaration: DeclGroupSyntax, Context: MacroExpansionContext
-    >(
+    public static func expansion(
         of node: AttributeSyntax,
-        providingMembersOf declaration: Declaration,
-        in context: Context
+        providingMembersOf declaration: some DeclGroupSyntax,
+        conformingTo protocols: [TypeSyntax],
+        in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         guard let decl = decodeExpansion(of: node, attachedTo: declaration, in: context) else {
             return []
@@ -26,7 +25,9 @@ public struct KeyPathIterableMacro: MemberMacro {
             .compactMap { $0.decl.as(VariableDeclSyntax.self)}
             .filter {
                 if decl.is(ActorDeclSyntax.self) {
-                    return $0.modifiers?.contains { $0.name.text == "nonisolated" } ?? false
+                    return $0.modifiers.contains {
+                        $0.name.text == "nonisolated"
+                    }
                 } else {
                     return true
                 }
@@ -35,7 +36,9 @@ public struct KeyPathIterableMacro: MemberMacro {
             .map { "\\.\($0)" }
             .joined(separator: ", ")
 
-        let codeBlockItemList = try VariableDeclSyntax("static var allKeyPaths: [PartialKeyPath<\(raw: namespace)>]") {
+        let codeBlockItemList = try VariableDeclSyntax(
+            "static var allKeyPaths: [PartialKeyPath<\(raw: namespace)>]"
+        ) {
             StmtSyntax("[\(raw: keyPaths)] + additionalKeyPaths")
         }
         .formatted()
@@ -44,19 +47,25 @@ public struct KeyPathIterableMacro: MemberMacro {
     }
 }
 
-extension KeyPathIterableMacro: ConformanceMacro {
-    public static func expansion<Declaration, Context>(of node: AttributeSyntax, providingConformancesOf declaration: Declaration, in context: Context) throws -> [(TypeSyntax, GenericWhereClauseSyntax?)] where Declaration : DeclGroupSyntax, Context : MacroExpansionContext {
+extension KeyPathIterableMacro: ExtensionMacro {
+    public static func expansion(
+        of node: AttributeSyntax,
+        attachedTo declaration: some DeclGroupSyntax,
+        providingExtensionsOf type: some TypeSyntaxProtocol,
+        conformingTo protocols: [TypeSyntax],
+        in context: some MacroExpansionContext
+    ) throws -> [ExtensionDeclSyntax] {
         guard let declaration = decodeExpansion(of: node, attachedTo: declaration, in: context) else {
             return []
         }
 
-        if let inheritedTypes = declaration.inheritanceClause?.inheritedTypeCollection,
-           inheritedTypes.contains(where: { inherited in inherited.typeName.trimmedDescription == "KeyPathIterable" })
+        if let inheritedTypes = declaration.inheritanceClause?.inheritedTypes,
+           inheritedTypes.contains(where: { inherited in inherited.type.trimmedDescription == "KeyPathIterable" })
         {
             return []
         }
 
-        return [("KeyPathIterable", nil)]
+        return [try ExtensionDeclSyntax("extension \(declaration): KeyPathIterable", membersBuilder: {})]
     }
 }
 
