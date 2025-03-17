@@ -55,17 +55,30 @@ extension KeyPathIterableMacro: ExtensionMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        guard let declaration = decodeExpansion(of: node, attachedTo: declaration, in: context) else {
+        guard
+            let declaration = decodeExpansion(
+                of: node,
+                attachedTo: declaration,
+                in: context
+            )
+        else {
             return []
         }
 
-        if let inheritedTypes = declaration.inheritanceClause?.inheritedTypes,
-           inheritedTypes.contains(where: { inherited in inherited.type.trimmedDescription == "KeyPathIterable" })
+        if
+            let inheritedTypes = declaration.inheritanceClause?.inheritedTypes,
+            inheritedTypes.contains(
+                where: { inherited in
+                    inherited.type.trimmedDescription == "KeyPathIterable"
+                }
+            )
         {
             return []
         }
 
-        return [try ExtensionDeclSyntax("extension \(declaration): KeyPathIterable", membersBuilder: {})]
+        return [
+            try ExtensionDeclSyntax("extension \(declaration): KeyPathIterable") {}
+        ]
     }
 }
 
@@ -84,7 +97,9 @@ public extension KeyPathIterableMacro {
         } else if let actorDecl = declaration.as(ActorDeclSyntax.self) {
             return actorDecl
         } else {
-            context.diagnose(KeyPathIterableMacroDiagnostic.requiresStructEnumClassActor.diagnose(at: attribute))
+            context.diagnose(
+                KeyPathIterableMacroDiagnostic.requiresStructEnumClassActor.diagnose(at: attribute)
+            )
             return nil
         }
     }
